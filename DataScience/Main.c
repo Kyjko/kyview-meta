@@ -215,29 +215,29 @@ errno_t GetMA26() {
 
 void Render() {
 	float max1 = 0;
-	for (int i = lines-500; i < lines+500; i++) {
+	for (int i = lines-VISIBLE_NUM/2; i < lines+VISIBLE_NUM/2; i++) {
 		if (data[i] >= max1) {
 			max1 = data[i];
 		}
 	}
 
-	int liness = 1000;
+	int liness = VISIBLE_NUM;
 
-	for (int i = lines-500; i < lines+500; i++) {
+	for (int i = lines-VISIBLE_NUM/2; i < lines+VISIBLE_NUM/2; i++) {
 
-		float datapos1 = H/s - data[i]/max1*(700+pan_y) /s;
+		float datapos1 = H/s - data[i]/max1*(700+pan_y) /(s);
 		float datapos2 = H/s - data[i + 1]/max1*(700+pan_y) /s;
 		SDL_SetRenderDrawColor(r, data[i] > data[i + 1] ? 170 : 0, data[i] > data[i + 1] ? 0 : 170, 30, 255);
 		SDL_RenderDrawLine(r, i * W / liness + pan_x, datapos1, (i + 1) * W / liness + pan_x, datapos2);
 		if (i > 12) {
 			SDL_SetRenderDrawColor(r, 150, 140, 30, 255);
-			float dataposma121 = H/s - data_ma12[i] / max1 * (700+pan_y)/s;
+			float dataposma121 = H/s - data_ma12[i] / max1 * (700+pan_y)/(s);
 			float dataposma122 = H/s - data_ma12[i + 1] / max1 * (700+pan_y)/s;
 			SDL_RenderDrawLine(r, (i+12) * W / liness + pan_x, dataposma121, (i + 1+12) * W / liness + pan_x, dataposma122);
 		}
 		if (i > 26) {
 			SDL_SetRenderDrawColor(r, 30, 170, 200, 255);
-			float dataposma261 = H/s - data_ma26[i] / max1 * (700+pan_y)/s;
+			float dataposma261 = H/s - data_ma26[i] / max1 * (700+pan_y)/(s);
 			float dataposma262 = H/s - data_ma26[i + 1] / max1 * (700+pan_y)/s;
 			SDL_RenderDrawLine(r, (i+26) * W / liness + pan_x, dataposma261, (i + 1+26) * W / liness + pan_x, dataposma262);
 			//SDL_RenderDrawLine(r, (i+26) * W / lines, H * 3*(1000-lines/2)/1000*2 - data_ma26[i] * 10*(1000-lines/2)/1000*2, (i + 1+26) * W / lines, H * 3*(1000-lines/2)/1000*2 - data_ma26[i + 1] * 10*(1000-lines/2)/1000*2);
@@ -280,10 +280,12 @@ void EventLoop() {
 				if (e.wheel.y > 0) {
 					if (zoom == 1) {
 						s -= 0.05;
+						s = max(s, 0.05);
 					}
 					else {
-						lines += 25;
-						pan_x -= 50;
+						lines += 15;
+						lines = min(lines, maxlines);
+						pan_x -= W/VISIBLE_NUM*18;
 					}
 				}
 				else {
@@ -291,8 +293,9 @@ void EventLoop() {
 						s += 0.05;
 					}
 					else {
-						lines -= 30;
-						pan_x += 50;
+						lines -= 15;
+						lines = max(lines, VISIBLE_NUM/2);
+						pan_x += W/VISIBLE_NUM*18;
 					}
 				}
 			}
